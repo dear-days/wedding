@@ -26,6 +26,49 @@
     return `${period} ${hour12}시${m > 0 ? ' ' + m + '분' : ''}`;
   }
 
+  // ── Prevent Page Zoom ──
+  function initPreventZoom() {
+    let lastTouchEnd = 0;
+
+    const prevent = (e) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener('gesturestart', prevent);
+    document.addEventListener('gesturechange', prevent);
+    document.addEventListener('gestureend', prevent);
+
+    window.addEventListener('wheel', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    window.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+
+      if ((e.ctrlKey || e.metaKey) && ['+', '-', '='].includes(key)) {
+        e.preventDefault();
+      }
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+
+      lastTouchEnd = now;
+    }, false);
+  }
+
   // ── Image Loading ──
   const IMAGE_EXTENSIONS = ['jpg', 'png'];
 
@@ -132,6 +175,8 @@
 
   // ── Build Page ──
   async function init() {
+    initPreventZoom();
+
     if (typeof CONFIG === 'undefined') return;
 
     const c = CONFIG;
