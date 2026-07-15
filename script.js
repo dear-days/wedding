@@ -103,11 +103,11 @@
     return images;
   }
 
-  async function loadJpegImagesFromFolder(folder, maxAttempts = 10) {
+  async function loadJpgImagesFromFolder(folder, maxAttempts = 10) {
     const images = [];
 
     for (let current = 1; current <= maxAttempts; current++) {
-      const path = `images/${folder}/${current}.jpeg`;
+      const path = `images/${folder}/${current}.jpg`;
 
       if (await imageExists(path)) {
         images.push(path);
@@ -219,7 +219,7 @@
     const maxImages = c.imageSearch?.maxImages || 30;
     const [storyImages, galleryImages] = await Promise.all([
       sections.story ? loadImagesFromFolder('story', maxImages) : Promise.resolve([]),
-      sections.gallery ? loadJpegImagesFromFolder('gallery', 10) : Promise.resolve([])
+      sections.gallery ? loadJpgImagesFromFolder('gallery', 10) : Promise.resolve([])
     ]);
 
     // Render image-dependent sections
