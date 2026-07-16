@@ -103,18 +103,11 @@
     return images;
   }
 
-  async function loadJpgImagesFromFolder(folder, maxAttempts = 10) {
-    const images = [];
-
-    for (let current = 1; current <= maxAttempts; current++) {
-      const path = `images/${folder}/${current}.jpg`;
-
-      if (await imageExists(path)) {
-        images.push(path);
-      }
-    }
-
-    return images;
+  function loadFixedJpgImagesFromFolder(folder, count = 10) {
+    return Array.from(
+      { length: count },
+      (_, i) => `images/${folder}/${i + 1}.jpg`
+    );
   }
 
   // ── Toast ──
@@ -219,7 +212,7 @@
     const maxImages = c.imageSearch?.maxImages || 30;
     const [storyImages, galleryImages] = await Promise.all([
       sections.story ? loadImagesFromFolder('story', maxImages) : Promise.resolve([]),
-      sections.gallery ? loadJpgImagesFromFolder('gallery', 10) : Promise.resolve([])
+      sections.gallery ? loadFixedJpgImagesFromFolder('gallery', 10) : Promise.resolve([])
     ]);
 
     // Render image-dependent sections
@@ -445,12 +438,12 @@
       return;
     }
 
-    const initialCount = 6;
+    const initialCount = 4;
 
     function renderImages(count) {
       grid.innerHTML = images.slice(0, count).map((src, i) =>
         `<div class="gallery-item" data-index="${i}">
-          <img src="${src}" alt="Gallery photo ${i + 1}" loading="lazy">
+          <img src="${src}" alt="Gallery photo ${i + 1}" loading="${i < initialCount ? 'eager' : 'lazy'}" decoding="async">
         </div>`
       ).join('');
 
