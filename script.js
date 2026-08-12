@@ -123,6 +123,14 @@
     );
   }
 
+  function preloadImages(images) {
+    images.forEach(src => {
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = src;
+    });
+  }
+
   // ── Toast ──
   let toastTimer = null;
   function showToast(message) {
@@ -467,6 +475,13 @@
     }
 
     renderImages(Math.min(initialCount, images.length));
+
+    const preloadRest = () => preloadImages(images.slice(initialCount));
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(preloadRest, { timeout: 1500 });
+    } else {
+      setTimeout(preloadRest, 300);
+    }
 
     const moreBtn = $('.btn-gallery-more');
     if (moreBtn) {
