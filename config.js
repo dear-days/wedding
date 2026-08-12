@@ -51,7 +51,7 @@ const CONFIG = {
 
   wedding: {
     date: "2026-11-07",
-    time: "13:00",
+    time: "14:00",
     venue: "엘블레스 다이아몬드홀",
     // hall: "다이아몬드홀 (B1)",
     address: "서울시 서초구 강남대로 213",
