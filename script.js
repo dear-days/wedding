@@ -26,6 +26,19 @@
     return `${period} ${hour12}시${m > 0 ? ' ' + m + '분' : ''}`;
   }
 
+  // ── Stable Hero Height ──
+  function initStableHeroHeight() {
+    function setAppHeight() {
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    }
+
+    setAppHeight();
+    window.addEventListener('orientationchange', () => {
+      setTimeout(setAppHeight, 250);
+    });
+    window.addEventListener('pageshow', setAppHeight);
+  }
+
   // ── Prevent Page Zoom ──
   function initPreventZoom() {
     let lastTouchEnd = 0;
@@ -103,11 +116,18 @@
     return images;
   }
 
-  function loadFixedJpgImagesFromFolder(folder, count = 10) {
-    return Array.from(
-      { length: count },
-      (_, i) => `images/${folder}/${i + 1}.jpg`
-    );
+  async function loadJpgImagesFromFolder(folder, maxAttempts = 10) {
+    const images = [];
+
+    for (let current = 1; current <= maxAttempts; current++) {
+      const path = `images/${folder}/${current}.jpg`;
+
+      if (await imageExists(path)) {
+        images.push(path);
+      }
+    }
+
+    return images;
   }
 
   // ── Toast ──
@@ -183,6 +203,7 @@
   // ── Build Page ──
   async function init() {
     initPreventZoom();
+    initStableHeroHeight();
 
     if (typeof CONFIG === 'undefined') return;
 
@@ -212,7 +233,7 @@
     const maxImages = c.imageSearch?.maxImages || 30;
     const [storyImages, galleryImages] = await Promise.all([
       sections.story ? loadImagesFromFolder('story', maxImages) : Promise.resolve([]),
-      sections.gallery ? loadFixedJpgImagesFromFolder('gallery', 10) : Promise.resolve([])
+      sections.gallery ? loadJpgImagesFromFolder('gallery', 10) : Promise.resolve([])
     ]);
 
     // Render image-dependent sections
@@ -438,12 +459,12 @@
       return;
     }
 
-    const initialCount = 4;
+    const initialCount = 6;
 
     function renderImages(count) {
       grid.innerHTML = images.slice(0, count).map((src, i) =>
         `<div class="gallery-item" data-index="${i}">
-          <img src="${src}" alt="Gallery photo ${i + 1}" loading="${i < initialCount ? 'eager' : 'lazy'}" decoding="async">
+          <img src="${src}" alt="Gallery photo ${i + 1}" loading="lazy">
         </div>`
       ).join('');
 
